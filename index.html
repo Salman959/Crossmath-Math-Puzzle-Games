@@ -1,0 +1,425 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Crossmath┬о - Pro Math Puzzle</title>
+    <style>
+        :root {
+            --bg-color: #fcfcfc;
+            --tile-yellow: #fff5ba;
+            --primary-green: #2e7d32;
+            --selected: #b2ebf2;
+            --correct: #c8e6c9;
+            --wrong: #ffcdd2;
+            --gem-color: #00e5ff;
+            --gold-gradient: linear-gradient(45deg, #FFD700, #FFA500);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            width: 100vw;
+            user-select: none;
+            overflow: hidden;
+        }
+
+        header {
+            width: 100%;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 600px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            z-index: 10;
+            box-sizing: border-box;
+        }
+
+        .gem-container {
+            background: #1a1a1a;
+            color: var(--gem-color);
+            padding: 5px 12px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .level-info {
+            font-weight: bold;
+            color: var(--primary-green);
+            background: #e8f5e9;
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+
+        .ads-btn {
+            background: var(--gold-gradient);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+
+        #game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .grid-container {
+            display: grid;
+            gap: 6px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid #eee;
+            width: 95%;
+            box-sizing: border-box;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1.1rem, 5vw, 1.6rem);
+            font-weight: bold;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .cell.static { background: var(--tile-yellow); border: 1px solid #dcdcdc; }
+        .cell.op { color: #777; font-size: 1rem; }
+        .cell.input { background: #fff; border: 2.5px solid #ddd; cursor: pointer; }
+        .cell.input.selected { background: var(--selected); border-color: #00bcd4; }
+        .cell.input.correct { background: var(--correct); color: #1b5e20; border-color: #4caf50; }
+        .cell.input.wrong { background: var(--wrong); color: #b71c1c; border-color: #f44336; }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            width: 95%;
+            max-width: 600px;
+        }
+
+        .tool-btn {
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 10px 5px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tool-btn span { color: #ff9100; font-size: 0.75rem; margin-top: 2px; }
+
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            padding: 15px;
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+            border-top: 1px solid #eee;
+        }
+
+        .num-btn {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 12px 0;
+            font-size: 1.4rem;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .num-btn.clear { background: #fff3e0; color: #e65100; }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+        }
+
+        .btn-next {
+            background: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="level-info" id="level-display">Level 1</div>
+    <button class="ads-btn" onclick="handleAdClick()">
+        тЦ╢я╕П Ads <span style="font-size: 0.7rem;">+50</span>
+    </button>
+    <div class="gem-container">
+        ЁЯТО <span id="gem-count">100</span>
+    </div>
+</header>
+
+<div id="game-area">
+    <div id="grid" class="grid-container"></div>
+    <div class="toolbar">
+        <button class="tool-btn" onclick="useHint()">ЁЯТб Hint <span>-100</span></button>
+        <button class="tool-btn" onclick="useUndo()">ЁЯФД Undo <span>-100</span></button>
+        <button class="tool-btn" onclick="useRestart()">ЁЯФБ Reset <span>-100</span></button>
+        <button class="tool-btn" onclick="useSkip()">тПня╕П Skip <span>-100</span></button>
+    </div>
+</div>
+
+<div class="numpad" id="numpad"></div>
+
+<div id="win-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="color: var(--primary-green);">Excellent! ЁЯОЙ</h2>
+        <p id="reward-text">ржЖржкржирж┐ рзлрзжржЯрж┐ ржбрж╛ржпрж╝ржоржирзНржб ржЬрж┐рждрзЗржЫрзЗржи!</p>
+        <button class="btn-next" onclick="nextLevel()">ржкрж░ржмрж░рзНрждрзА рж▓рзЗржнрзЗрж▓</button>
+    </div>
+</div>
+
+<script>
+    let gems = parseInt(localStorage.getItem('cm_gems')) || 100;
+    let currentLevel = parseInt(localStorage.getItem('cm_level')) || 1;
+    let selectedCell = null;
+    let puzzleData = [];
+    let gridSize = 5;
+
+    // --- ADS TRACKING SYSTEM ---
+    function handleAdClick() {
+        // ржЯрж╛ржЗржорж╕рзНржЯрзНржпрж╛ржорзНржк рж╕рзЗржн ржХрж░рж╛ рж╣ржЪрзНржЫрзЗ
+        const startTime = Date.now();
+        localStorage.setItem('ad_start_time', startTime);
+        localStorage.setItem('ad_active', 'true');
+        
+        alert("ржмрж┐ржЬрзНржЮрж╛ржкржи рж▓рзЛржб рж╣ржЪрзНржЫрзЗред ржЕржирзНрждржд рззрзл рж╕рзЗржХрзЗржирзНржб ржжрзЗржЦрзБржи ржПржмржВ ржмрзНржпрж╛ржХ ржмрж╛ржЯржирзЗ ржХрзНрж▓рж┐ржХ ржХрж░рзЗ ржлрж┐рж░рзЗ ржПрж╕рзЗ ржбрж╛ржпрж╝ржоржирзНржб рж╕ржВржЧрзНрж░рж╣ ржХрж░рзБржиред");
+        
+        window.open('https://www.effectivegatecpm.com/drdh1zam2q?key=81bac3b0d27ae4b572def5ed33dedbde', '_blank');
+    }
+
+    function checkAdStatus() {
+        const isActive = localStorage.getItem('ad_active');
+        if (isActive !== 'true') return;
+
+        const startTime = parseInt(localStorage.getItem('ad_start_time'));
+        const currentTime = Date.now();
+        const elapsedSeconds = (currentTime - startTime) / 1000;
+
+        if (elapsedSeconds >= 15) {
+            const reward = 50;
+            gems += reward;
+            saveData();
+            updateUI();
+            alert(`ржЕржнрж┐ржиржирзНржжржи! ржЖржкржирж┐ рззрзл рж╕рзЗржХрзЗржирзНржбрзЗрж░ ржмрзЗрж╢рж┐ ржмрж┐ржЬрзНржЮрж╛ржкржи ржжрзЗржЦрзЗржЫрзЗржи ржПржмржВ ${reward} ржбрж╛ржпрж╝ржоржирзНржб ржкрзЗржпрж╝рзЗржЫрзЗржиред`);
+        } else {
+            alert("ржЖржкржирж┐ ржмрж┐ржЬрзНржЮрж╛ржкржиржЯрж┐ рззрзл рж╕рзЗржХрзЗржирзНржб ржжрзЗржЦрзЗржиржирж┐ред ржЖржмрж╛рж░ ржЪрзЗрж╖рзНржЯрж╛ ржХрж░рзБржиред");
+        }
+
+        // рж╕рзНржЯрзЗржЯ ржХрзНрж▓рж┐рзЯрж╛рж░
+        localStorage.removeItem('ad_active');
+        localStorage.removeItem('ad_start_time');
+    }
+
+    // ржорж╛рж▓рзНржЯрж┐-ржкрзНрж▓рзНржпрж╛ржЯржлрж░рзНржо рж▓рж┐рж╕рзЗржирж╛рж░ (ржЕрзНржпрж╛ржирзНржбрзНрж░рзЯрзЗржб ржЕрзНржпрж╛ржк ржПржмржВ ржЯрзЗрж▓рж┐ржЧрзНрж░рж╛ржорзЗрж░ ржЬржирзНржп ржЧрзБрж░рзБрждрзНржмржкрзВрж░рзНржг)
+    window.addEventListener('focus', checkAdStatus);
+    window.addEventListener('pageshow', checkAdStatus);
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkAdStatus();
+    });
+
+    // --- GAME LOGIC ---
+    function saveData() {
+        localStorage.setItem('cm_gems', gems);
+        localStorage.setItem('cm_level', currentLevel);
+    }
+
+    function updateUI() {
+        document.getElementById('gem-count').textContent = gems;
+        document.getElementById('level-display').textContent = `Level ${currentLevel}`;
+    }
+
+    function initGame() {
+        updateUI();
+        gridSize = 5;
+        if (currentLevel > 10) gridSize = 7;
+        if (currentLevel > 20) gridSize = 9;
+        generatePuzzle();
+        renderGrid();
+        renderNumpad();
+    }
+
+    function generatePuzzle() {
+        puzzleData = [];
+        for (let r = 0; r < gridSize; r++) {
+            puzzleData[r] = [];
+            for (let c = 0; c < gridSize; c++) {
+                if (r % 2 === 0 && c % 2 === 0) {
+                    puzzleData[r][c] = { type: 'num', val: Math.floor(Math.random() * 9) + 1, userVal: null, isHidden: Math.random() > 0.6 };
+                } else if (r % 2 === 0 && c % 2 !== 0) {
+                    puzzleData[r][c] = { type: 'op', val: Math.random() > 0.5 ? '+' : '-' };
+                } else if (r % 2 !== 0 && c % 2 === 0) {
+                    puzzleData[r][c] = { type: 'op', val: Math.random() > 0.5 ? '+' : '-' };
+                } else {
+                    puzzleData[r][c] = { type: 'empty' };
+                }
+            }
+        }
+        for (let i = 0; i < gridSize; i += 2) {
+            let rowVal = puzzleData[i][0].val;
+            for (let j = 1; j < gridSize - 2; j += 2) {
+                let op = puzzleData[i][j].val;
+                let next = puzzleData[i][j + 1].val;
+                rowVal = op === '+' ? rowVal + next : rowVal - next;
+            }
+            puzzleData[i][gridSize - 1] = { type: 'static', val: rowVal };
+            puzzleData[i][gridSize - 2] = { type: 'op', val: '=' };
+        }
+    }
+
+    function renderGrid() {
+        const gridEl = document.getElementById('grid');
+        gridEl.innerHTML = '';
+        gridEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                const data = puzzleData[r][c];
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (data.type === 'empty') cell.classList.add('empty');
+                else if (data.type === 'op') { cell.classList.add('op'); cell.textContent = data.val; }
+                else if (data.type === 'static') { cell.classList.add('static'); cell.textContent = data.val; }
+                else if (data.type === 'num') {
+                    if (data.isHidden) {
+                        cell.classList.add('input');
+                        cell.dataset.r = r; cell.dataset.c = c;
+                        if(data.userVal !== null) cell.textContent = data.userVal;
+                        cell.onclick = () => { if (selectedCell) selectedCell.classList.remove('selected'); selectedCell = cell; cell.classList.add('selected'); };
+                    } else { cell.classList.add('static'); cell.textContent = data.val; }
+                }
+                gridEl.appendChild(cell);
+            }
+        }
+    }
+
+    function renderNumpad() {
+        const pad = document.getElementById('numpad');
+        const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'C'];
+        pad.innerHTML = '';
+        keys.forEach(k => {
+            const btn = document.createElement('button');
+            btn.className = 'num-btn' + (k === 'C' ? ' clear' : '');
+            btn.textContent = k === 'C' ? 'тМл' : k;
+            btn.onclick = () => handleInput(k);
+            pad.appendChild(btn);
+        });
+    }
+
+    function handleInput(val) {
+        if (!selectedCell) return;
+        const r = selectedCell.dataset.r; const c = selectedCell.dataset.c;
+        if (val === 'C') {
+            puzzleData[r][c].userVal = null;
+            selectedCell.textContent = '';
+            selectedCell.classList.remove('correct', 'wrong');
+        } else {
+            puzzleData[r][c].userVal = val;
+            selectedCell.textContent = val;
+            if (val == puzzleData[r][c].val) {
+                selectedCell.classList.add('correct'); selectedCell.classList.remove('wrong');
+                checkWin();
+            } else {
+                selectedCell.classList.add('wrong'); selectedCell.classList.remove('correct');
+            }
+        }
+    }
+
+    function spendGems(amount, action) {
+        if (gems >= amount) {
+            gems -= amount; updateUI(); saveData(); action(); return true;
+        } else {
+            alert("ржЖржкржирж╛рж░ ржкрж░рзНржпрж╛ржкрзНржд ржбрж╛ржпрж╝ржоржирзНржб ржирзЗржЗ!"); return false;
+        }
+    }
+
+    function useHint() { spendGems(100, () => {
+        const inputs = document.querySelectorAll('.cell.input:not(.correct)');
+        if (inputs.length > 0) {
+            const target = inputs[Math.floor(Math.random() * inputs.length)];
+            const r = target.dataset.r; const c = target.dataset.c;
+            handleInput(puzzleData[r][c].val);
+        }
+    }); }
+
+    function useUndo() { spendGems(100, () => { if(selectedCell) handleInput('C'); }); }
+    function useRestart() { spendGems(100, () => { puzzleData.forEach(row => row.forEach(cell => { if(cell.isHidden) cell.userVal = null; })); renderGrid(); }); }
+    function useSkip() { spendGems(100, () => nextLevel()); }
+
+    function checkWin() {
+        const remaining = document.querySelectorAll('.cell.input:not(.correct)');
+        if (remaining.length === 0) {
+            gems += 50; saveData();
+            document.getElementById('win-modal').style.display = 'flex';
+        }
+    }
+
+    function nextLevel() {
+        currentLevel++; saveData();
+        document.getElementById('win-modal').style.display = 'none';
+        selectedCell = null; initGame();
+    }
+
+    window.onload = initGame;
+</script>
+</body>
+</html>
