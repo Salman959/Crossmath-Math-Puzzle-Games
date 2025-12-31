@@ -1,9 +1,10 @@
-<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="bn" translate="no"> <!-- translate="no" ব্রাউজারকে অনুবাদ করতে বাধা দেবে -->
 <head>
     <meta charset="UTF-8">
+    <meta name="google" content="notranslate"> <!-- গুগল ট্রান্সলেট বন্ধ করার জন্য -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crossmath┬о - Pro Math Puzzle</title>
+    <title>Crossmath® - Pro Math Puzzle</title>
     <style>
         :root {
             --bg-color: #fcfcfc;
@@ -72,7 +73,6 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
 
         #game-area {
@@ -197,25 +197,25 @@
         }
     </style>
 </head>
-<body>
+<body class="notranslate"> <!-- class="notranslate" অতিরিক্ত নিরাপত্তা হিসেবে -->
 
 <header>
     <div class="level-info" id="level-display">Level 1</div>
     <button class="ads-btn" onclick="handleAdClick()">
-        тЦ╢я╕П Ads <span style="font-size: 0.7rem;">+50</span>
+        ▶️ Ads <span style="font-size: 0.7rem;">+50</span>
     </button>
     <div class="gem-container">
-        ЁЯТО <span id="gem-count">100</span>
+        💎 <span id="gem-count">100</span>
     </div>
 </header>
 
 <div id="game-area">
     <div id="grid" class="grid-container"></div>
     <div class="toolbar">
-        <button class="tool-btn" onclick="useHint()">ЁЯТб Hint <span>-100</span></button>
-        <button class="tool-btn" onclick="useUndo()">ЁЯФД Undo <span>-100</span></button>
-        <button class="tool-btn" onclick="useRestart()">ЁЯФБ Reset <span>-100</span></button>
-        <button class="tool-btn" onclick="useSkip()">тПня╕П Skip <span>-100</span></button>
+        <button class="tool-btn" onclick="useHint()">💡 Hint <span>-100</span></button>
+        <button class="tool-btn" onclick="useUndo()">🔄 Undo <span>-100</span></button>
+        <button class="tool-btn" onclick="useRestart()">🔁 Reset <span>-100</span></button>
+        <button class="tool-btn" onclick="useSkip()">⏭️ Skip <span>-100</span></button>
     </div>
 </div>
 
@@ -223,9 +223,9 @@
 
 <div id="win-modal" class="modal">
     <div class="modal-content">
-        <h2 style="color: var(--primary-green);">Excellent! ЁЯОЙ</h2>
-        <p id="reward-text">ржЖржкржирж┐ рзлрзжржЯрж┐ ржбрж╛ржпрж╝ржоржирзНржб ржЬрж┐рждрзЗржЫрзЗржи!</p>
-        <button class="btn-next" onclick="nextLevel()">ржкрж░ржмрж░рзНрждрзА рж▓рзЗржнрзЗрж▓</button>
+        <h2 style="color: var(--primary-green);">Excellent! 🎉</h2>
+        <p id="reward-text">আপনি ৫০টি ডায়মন্ড জিতেছেন!</p>
+        <button class="btn-next" onclick="nextLevel()">পরবর্তী লেভেল</button>
     </div>
 </div>
 
@@ -238,13 +238,10 @@
 
     // --- ADS TRACKING SYSTEM ---
     function handleAdClick() {
-        // ржЯрж╛ржЗржорж╕рзНржЯрзНржпрж╛ржорзНржк рж╕рзЗржн ржХрж░рж╛ рж╣ржЪрзНржЫрзЗ
         const startTime = Date.now();
         localStorage.setItem('ad_start_time', startTime);
         localStorage.setItem('ad_active', 'true');
-        
-        alert("ржмрж┐ржЬрзНржЮрж╛ржкржи рж▓рзЛржб рж╣ржЪрзНржЫрзЗред ржЕржирзНрждржд рззрзл рж╕рзЗржХрзЗржирзНржб ржжрзЗржЦрзБржи ржПржмржВ ржмрзНржпрж╛ржХ ржмрж╛ржЯржирзЗ ржХрзНрж▓рж┐ржХ ржХрж░рзЗ ржлрж┐рж░рзЗ ржПрж╕рзЗ ржбрж╛ржпрж╝ржоржирзНржб рж╕ржВржЧрзНрж░рж╣ ржХрж░рзБржиред");
-        
+        alert("বিজ্ঞাপন লোড হচ্ছে। অন্তত ১৫ সেকেন্ড দেখুন এবং ব্যাক বাটনে ক্লিক করে ফিরে এসে ডায়মন্ড সংগ্রহ করুন।");
         window.open('https://www.effectivegatecpm.com/drdh1zam2q?key=81bac3b0d27ae4b572def5ed33dedbde', '_blank');
     }
 
@@ -257,21 +254,17 @@
         const elapsedSeconds = (currentTime - startTime) / 1000;
 
         if (elapsedSeconds >= 15) {
-            const reward = 50;
-            gems += reward;
+            gems += 50;
             saveData();
             updateUI();
-            alert(`ржЕржнрж┐ржиржирзНржжржи! ржЖржкржирж┐ рззрзл рж╕рзЗржХрзЗржирзНржбрзЗрж░ ржмрзЗрж╢рж┐ ржмрж┐ржЬрзНржЮрж╛ржкржи ржжрзЗржЦрзЗржЫрзЗржи ржПржмржВ ${reward} ржбрж╛ржпрж╝ржоржирзНржб ржкрзЗржпрж╝рзЗржЫрзЗржиред`);
+            alert(`অভিনন্দন! আপনি ১৫ সেকেন্ড বিজ্ঞাপন দেখেছেন এবং ৫০টি ডায়মন্ড পেয়েছেন।`);
         } else {
-            alert("ржЖржкржирж┐ ржмрж┐ржЬрзНржЮрж╛ржкржиржЯрж┐ рззрзл рж╕рзЗржХрзЗржирзНржб ржжрзЗржЦрзЗржиржирж┐ред ржЖржмрж╛рж░ ржЪрзЗрж╖рзНржЯрж╛ ржХрж░рзБржиред");
+            alert("আপনি বিজ্ঞাপনটি ১৫ সেকেন্ড দেখেননি। আবার চেষ্টা করুন।");
         }
-
-        // рж╕рзНржЯрзЗржЯ ржХрзНрж▓рж┐рзЯрж╛рж░
         localStorage.removeItem('ad_active');
         localStorage.removeItem('ad_start_time');
     }
 
-    // ржорж╛рж▓рзНржЯрж┐-ржкрзНрж▓рзНржпрж╛ржЯржлрж░рзНржо рж▓рж┐рж╕рзЗржирж╛рж░ (ржЕрзНржпрж╛ржирзНржбрзНрж░рзЯрзЗржб ржЕрзНржпрж╛ржк ржПржмржВ ржЯрзЗрж▓рж┐ржЧрзНрж░рж╛ржорзЗрж░ ржЬржирзНржп ржЧрзБрж░рзБрждрзНржмржкрзВрж░рзНржг)
     window.addEventListener('focus', checkAdStatus);
     window.addEventListener('pageshow', checkAdStatus);
     document.addEventListener('visibilitychange', () => {
@@ -359,7 +352,7 @@
         keys.forEach(k => {
             const btn = document.createElement('button');
             btn.className = 'num-btn' + (k === 'C' ? ' clear' : '');
-            btn.textContent = k === 'C' ? 'тМл' : k;
+            btn.textContent = k === 'C' ? '⌫' : k;
             btn.onclick = () => handleInput(k);
             pad.appendChild(btn);
         });
@@ -388,7 +381,7 @@
         if (gems >= amount) {
             gems -= amount; updateUI(); saveData(); action(); return true;
         } else {
-            alert("ржЖржкржирж╛рж░ ржкрж░рзНржпрж╛ржкрзНржд ржбрж╛ржпрж╝ржоржирзНржб ржирзЗржЗ!"); return false;
+            alert("আপনার পর্যাপ্ত ডায়মন্ড নেই!"); return false;
         }
     }
 
