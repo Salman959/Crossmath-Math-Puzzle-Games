@@ -1,418 +1,176 @@
 <!DOCTYPE html>
-<html lang="bn" translate="no"> <!-- translate="no" ব্রাউজারকে অনুবাদ করতে বাধা দেবে -->
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="google" content="notranslate"> <!-- গুগল ট্রান্সলেট বন্ধ করার জন্য -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crossmath® - Pro Math Puzzle</title>
-    <style>
-        :root {
-            --bg-color: #fcfcfc;
-            --tile-yellow: #fff5ba;
-            --primary-green: #2e7d32;
-            --selected: #b2ebf2;
-            --correct: #c8e6c9;
-            --wrong: #ffcdd2;
-            --gem-color: #00e5ff;
-            --gold-gradient: linear-gradient(45deg, #FFD700, #FFA500);
-        }
+<meta charset="UTF-8">
+<title>SALMAN Rewards Zone</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100vh;
-            width: 100vw;
-            user-select: none;
-            overflow: hidden;
-        }
-
-        header {
-            width: 100%;
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 600px;
-            background: #fff;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            z-index: 10;
-            box-sizing: border-box;
-        }
-
-        .gem-container {
-            background: #1a1a1a;
-            color: var(--gem-color);
-            padding: 5px 12px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-weight: bold;
-        }
-
-        .level-info {
-            font-weight: bold;
-            color: var(--primary-green);
-            background: #e8f5e9;
-            padding: 4px 12px;
-            border-radius: 20px;
-        }
-
-        .ads-btn {
-            background: var(--gold-gradient);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 10px;
-            color: #fff;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        #game-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            max-width: 600px;
-            padding: 5px;
-            box-sizing: border-box;
-        }
-
-        .grid-container {
-            display: grid;
-            gap: 6px;
-            background: #fff;
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            border: 1px solid #eee;
-            width: 95%;
-            box-sizing: border-box;
-        }
-
-        .cell {
-            aspect-ratio: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: clamp(1.1rem, 5vw, 1.6rem);
-            font-weight: bold;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-
-        .cell.static { background: var(--tile-yellow); border: 1px solid #dcdcdc; }
-        .cell.op { color: #777; font-size: 1rem; }
-        .cell.input { background: #fff; border: 2.5px solid #ddd; cursor: pointer; }
-        .cell.input.selected { background: var(--selected); border-color: #00bcd4; }
-        .cell.input.correct { background: var(--correct); color: #1b5e20; border-color: #4caf50; }
-        .cell.input.wrong { background: var(--wrong); color: #b71c1c; border-color: #f44336; }
-
-        .toolbar {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
-            width: 95%;
-            max-width: 600px;
-        }
-
-        .tool-btn {
-            background: #fff;
-            border: 1px solid #ddd;
-            padding: 10px 5px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .tool-btn span { color: #ff9100; font-size: 0.75rem; margin-top: 2px; }
-
-        .numpad {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 8px;
-            padding: 15px;
-            background: white;
-            width: 100%;
-            max-width: 600px;
-            box-sizing: border-box;
-            border-top: 1px solid #eee;
-        }
-
-        .num-btn {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
-            padding: 12px 0;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        .num-btn.clear { background: #fff3e0; color: #e65100; }
-
-        .modal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            text-align: center;
-            width: 85%;
-            max-width: 320px;
-        }
-
-        .btn-next {
-            background: var(--primary-green);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 12px;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
-            width: 100%;
-        }
-    </style>
+<style>
+body{margin:0;font-family:Arial,sans-serif;background:#f5f6fa;}
+header{background:#1e90ff;color:#fff;padding:15px;text-align:center;}
+#coins{font-size:18px;margin-top:5px;}
+.container{padding:15px;}
+.search-box{display:flex;gap:10px;margin-bottom:10px;}
+.search-box input{flex:1;padding:10px;font-size:16px;}
+.search-box button{padding:10px 15px;font-size:16px;background:#1e90ff;color:#fff;border:none;cursor:pointer;}
+.video-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:15px;}
+.video-card{background:#fff;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,.1);overflow:hidden;}
+.video-card img{width:100%;}
+.video-card .info{padding:10px;}
+.video-card h4{margin:0;font-size:14px;}
+.video-card p{margin:5px 0 0;font-size:12px;color:#555;}
+.player{margin-top:20px;}
+.reward{margin-top:10px;background:#eaf4ff;padding:10px;border-radius:6px;font-size:14px;}
+#loginBtn,#logoutBtn{padding:10px 15px;margin:5px;border:none;cursor:pointer;border-radius:4px;}
+#loginBtn{background:#34A853;color:#fff;}
+#logoutBtn{background:#EA4335;color:#fff;}
+</style>
 </head>
-<body class="notranslate"> <!-- class="notranslate" অতিরিক্ত নিরাপত্তা হিসেবে -->
+<body>
 
 <header>
-    <div class="level-info" id="level-display">Level 1</div>
-    <button class="ads-btn" onclick="handleAdClick()">
-        ▶️ Ads <span style="font-size: 0.7rem;">+50</span>
-    </button>
-    <div class="gem-container">
-        💎 <span id="gem-count">100</span>
-    </div>
+  <h2>SALMAN Rewards Zone</h2>
+  <div id="authButtons">
+    <button id="loginBtn">Login with Google</button>
+  </div>
+  <div id="coins" style="display:none;">Coins: 0</div>
 </header>
 
-<div id="game-area">
-    <div id="grid" class="grid-container"></div>
-    <div class="toolbar">
-        <button class="tool-btn" onclick="useHint()">💡 Hint <span>-100</span></button>
-        <button class="tool-btn" onclick="useUndo()">🔄 Undo <span>-100</span></button>
-        <button class="tool-btn" onclick="useRestart()">🔁 Reset <span>-100</span></button>
-        <button class="tool-btn" onclick="useSkip()">⏭️ Skip <span>-100</span></button>
-    </div>
-</div>
-
-<div class="numpad" id="numpad"></div>
-
-<div id="win-modal" class="modal">
-    <div class="modal-content">
-        <h2 style="color: var(--primary-green);">Excellent! 🎉</h2>
-        <p id="reward-text">আপনি ৫০টি ডায়মন্ড জিতেছেন!</p>
-        <button class="btn-next" onclick="nextLevel()">পরবর্তী লেভেল</button>
-    </div>
+<div class="container">
+  <div class="search-box">
+    <input type="text" id="query" placeholder="Search videos..." disabled>
+    <button onclick="searchVideos()" id="searchBtn" disabled>Search</button>
+  </div>
+  <div id="videoList" class="video-list"></div>
+  <div id="playerSection" class="player"></div>
 </div>
 
 <script>
-    let gems = parseInt(localStorage.getItem('cm_gems')) || 100;
-    let currentLevel = parseInt(localStorage.getItem('cm_level')) || 1;
-    let selectedCell = null;
-    let puzzleData = [];
-    let gridSize = 5;
+// Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyDhagZJsz-W59Nl1gyAnhIEcCNd1-IpYa0",
+  authDomain: "mr-earning-dabd7.firebaseapp.com",
+  databaseURL: "https://mr-earning-dabd7-default-rtdb.firebaseio.com",
+  projectId: "mr-earning-dabd7",
+  storageBucket: "mr-earning-dabd7.firebasestorage.app",
+  messagingSenderId: "1011066300124",
+  appId: "1:1011066300124:web:de70df6effe369257cb619",
+  measurementId: "G-9Z9VFWXVRD"
+};
 
-    // --- ADS TRACKING SYSTEM ---
-    function handleAdClick() {
-        const startTime = Date.now();
-        localStorage.setItem('ad_start_time', startTime);
-        localStorage.setItem('ad_active', 'true');
-        alert("বিজ্ঞাপন লোড হচ্ছে। অন্তত ১৫ সেকেন্ড দেখুন এবং ব্যাক বাটনে ক্লিক করে ফিরে এসে ডায়মন্ড সংগ্রহ করুন।");
-        window.open('https://www.effectivegatecpm.com/drdh1zam2q?key=81bac3b0d27ae4b572def5ed33dedbde', '_blank');
-    }
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
 
-    function checkAdStatus() {
-        const isActive = localStorage.getItem('ad_active');
-        if (isActive !== 'true') return;
+// YouTube API
+const YT_API = "AIzaSyAm4TYU1VY17xTFiNbDuIg29v_X-r0mEOQ"; // <-- Replace with your API Key
 
-        const startTime = parseInt(localStorage.getItem('ad_start_time'));
-        const currentTime = Date.now();
-        const elapsedSeconds = (currentTime - startTime) / 1000;
+let currentUser = null;
+let coins = 0;
+let rewardedVideos = {};
 
-        if (elapsedSeconds >= 15) {
-            gems += 50;
-            saveData();
-            updateUI();
-            alert(`অভিনন্দন! আপনি ১৫ সেকেন্ড বিজ্ঞাপন দেখেছেন এবং ৫০টি ডায়মন্ড পেয়েছেন।`);
-        } else {
-            alert("আপনি বিজ্ঞাপনটি ১৫ সেকেন্ড দেখেননি। আবার চেষ্টা করুন।");
-        }
-        localStorage.removeItem('ad_active');
-        localStorage.removeItem('ad_start_time');
-    }
+// --- Auth ---
+const loginBtn = document.getElementById("loginBtn");
+const authButtons = document.getElementById("authButtons");
+const searchInput = document.getElementById("query");
+const searchBtn = document.getElementById("searchBtn");
 
-    window.addEventListener('focus', checkAdStatus);
-    window.addEventListener('pageshow', checkAdStatus);
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') checkAdStatus();
-    });
+loginBtn.onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+};
 
-    // --- GAME LOGIC ---
-    function saveData() {
-        localStorage.setItem('cm_gems', gems);
-        localStorage.setItem('cm_level', currentLevel);
-    }
+auth.onAuthStateChanged(user=>{
+  if(user){
+    currentUser = user;
+    authButtons.innerHTML = `<button id="logoutBtn">Logout</button>`;
+    document.getElementById("logoutBtn").onclick = ()=>auth.signOut();
+    document.getElementById("coins").style.display = "block";
+    searchInput.disabled = false;
+    searchBtn.disabled = false;
 
-    function updateUI() {
-        document.getElementById('gem-count').textContent = gems;
-        document.getElementById('level-display').textContent = `Level ${currentLevel}`;
-    }
-
-    function initGame() {
-        updateUI();
-        gridSize = 5;
-        if (currentLevel > 10) gridSize = 7;
-        if (currentLevel > 20) gridSize = 9;
-        generatePuzzle();
-        renderGrid();
-        renderNumpad();
-    }
-
-    function generatePuzzle() {
-        puzzleData = [];
-        for (let r = 0; r < gridSize; r++) {
-            puzzleData[r] = [];
-            for (let c = 0; c < gridSize; c++) {
-                if (r % 2 === 0 && c % 2 === 0) {
-                    puzzleData[r][c] = { type: 'num', val: Math.floor(Math.random() * 9) + 1, userVal: null, isHidden: Math.random() > 0.6 };
-                } else if (r % 2 === 0 && c % 2 !== 0) {
-                    puzzleData[r][c] = { type: 'op', val: Math.random() > 0.5 ? '+' : '-' };
-                } else if (r % 2 !== 0 && c % 2 === 0) {
-                    puzzleData[r][c] = { type: 'op', val: Math.random() > 0.5 ? '+' : '-' };
-                } else {
-                    puzzleData[r][c] = { type: 'empty' };
-                }
-            }
-        }
-        for (let i = 0; i < gridSize; i += 2) {
-            let rowVal = puzzleData[i][0].val;
-            for (let j = 1; j < gridSize - 2; j += 2) {
-                let op = puzzleData[i][j].val;
-                let next = puzzleData[i][j + 1].val;
-                rowVal = op === '+' ? rowVal + next : rowVal - next;
-            }
-            puzzleData[i][gridSize - 1] = { type: 'static', val: rowVal };
-            puzzleData[i][gridSize - 2] = { type: 'op', val: '=' };
-        }
-    }
-
-    function renderGrid() {
-        const gridEl = document.getElementById('grid');
-        gridEl.innerHTML = '';
-        gridEl.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
-                const data = puzzleData[r][c];
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                if (data.type === 'empty') cell.classList.add('empty');
-                else if (data.type === 'op') { cell.classList.add('op'); cell.textContent = data.val; }
-                else if (data.type === 'static') { cell.classList.add('static'); cell.textContent = data.val; }
-                else if (data.type === 'num') {
-                    if (data.isHidden) {
-                        cell.classList.add('input');
-                        cell.dataset.r = r; cell.dataset.c = c;
-                        if(data.userVal !== null) cell.textContent = data.userVal;
-                        cell.onclick = () => { if (selectedCell) selectedCell.classList.remove('selected'); selectedCell = cell; cell.classList.add('selected'); };
-                    } else { cell.classList.add('static'); cell.textContent = data.val; }
-                }
-                gridEl.appendChild(cell);
-            }
-        }
-    }
-
-    function renderNumpad() {
-        const pad = document.getElementById('numpad');
-        const keys = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 'C'];
-        pad.innerHTML = '';
-        keys.forEach(k => {
-            const btn = document.createElement('button');
-            btn.className = 'num-btn' + (k === 'C' ? ' clear' : '');
-            btn.textContent = k === 'C' ? '⌫' : k;
-            btn.onclick = () => handleInput(k);
-            pad.appendChild(btn);
+    // Load coins from Firestore
+    db.collection("users").doc(user.uid).get().then(doc=>{
+      if(doc.exists){
+        coins = doc.data().coins || 0;
+        updateCoins();
+      }else{
+        db.collection("users").doc(user.uid).set({
+          name: user.displayName,
+          email: user.email,
+          coins: 0,
+          joinedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
-    }
+        coins = 0;
+        updateCoins();
+      }
+    });
+  }else{
+    currentUser = null;
+    authButtons.innerHTML = `<button id="loginBtn">Login with Google</button>`;
+    document.getElementById("coins").style.display = "none";
+    searchInput.disabled = true;
+    searchBtn.disabled = true;
+  }
+});
 
-    function handleInput(val) {
-        if (!selectedCell) return;
-        const r = selectedCell.dataset.r; const c = selectedCell.dataset.c;
-        if (val === 'C') {
-            puzzleData[r][c].userVal = null;
-            selectedCell.textContent = '';
-            selectedCell.classList.remove('correct', 'wrong');
-        } else {
-            puzzleData[r][c].userVal = val;
-            selectedCell.textContent = val;
-            if (val == puzzleData[r][c].val) {
-                selectedCell.classList.add('correct'); selectedCell.classList.remove('wrong');
-                checkWin();
-            } else {
-                selectedCell.classList.add('wrong'); selectedCell.classList.remove('correct');
-            }
-        }
-    }
+// --- Update coins
+function updateCoins(){
+  document.getElementById("coins").innerText = "Coins: " + coins;
+  if(currentUser){
+    db.collection("users").doc(currentUser.uid).update({coins: coins});
+  }
+}
 
-    function spendGems(amount, action) {
-        if (gems >= amount) {
-            gems -= amount; updateUI(); saveData(); action(); return true;
-        } else {
-            alert("আপনার পর্যাপ্ত ডায়মন্ড নেই!"); return false;
-        }
-    }
+// --- Search YouTube
+function searchVideos(){
+  const q = searchInput.value;
+  if(!q) return;
+  fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=6&q=${q}&key=${YT_API}`)
+  .then(res=>res.json())
+  .then(data=>{
+    const list = document.getElementById("videoList");
+    list.innerHTML="";
+    data.items.forEach(v=>{
+      const card = document.createElement("div");
+      card.className="video-card";
+      card.innerHTML=`
+        <img src="${v.snippet.thumbnails.medium.url}">
+        <div class="info">
+          <h4>${v.snippet.title}</h4>
+          <p>${v.snippet.channelTitle}</p>
+          <button onclick="playVideo('${v.id.videoId}')">Watch</button>
+        </div>`;
+      list.appendChild(card);
+    });
+  });
+}
 
-    function useHint() { spendGems(100, () => {
-        const inputs = document.querySelectorAll('.cell.input:not(.correct)');
-        if (inputs.length > 0) {
-            const target = inputs[Math.floor(Math.random() * inputs.length)];
-            const r = target.dataset.r; const c = target.dataset.c;
-            handleInput(puzzleData[r][c].val);
-        }
-    }); }
+// --- Play Video
+function playVideo(videoId){
+  const section = document.getElementById("playerSection");
+  section.innerHTML = `
+    <iframe width="100%" height="220"
+      src="https://www.youtube.com/embed/${videoId}?enablejsapi=1"
+      frameborder="0" allowfullscreen></iframe>
+    <div class="reward">
+      Watch 30 seconds to earn <b>5 coins</b>
+    </div>
+  `;
+  if(rewardedVideos[videoId]) return;
+  setTimeout(()=>{
+    coins+=5;
+    rewardedVideos[videoId]=true;
+    updateCoins();
+    alert("🎉 You earned 5 coins!");
+  },30000);
+}
 
-    function useUndo() { spendGems(100, () => { if(selectedCell) handleInput('C'); }); }
-    function useRestart() { spendGems(100, () => { puzzleData.forEach(row => row.forEach(cell => { if(cell.isHidden) cell.userVal = null; })); renderGrid(); }); }
-    function useSkip() { spendGems(100, () => nextLevel()); }
-
-    function checkWin() {
-        const remaining = document.querySelectorAll('.cell.input:not(.correct)');
-        if (remaining.length === 0) {
-            gems += 50; saveData();
-            document.getElementById('win-modal').style.display = 'flex';
-        }
-    }
-
-    function nextLevel() {
-        currentLevel++; saveData();
-        document.getElementById('win-modal').style.display = 'none';
-        selectedCell = null; initGame();
-    }
-
-    window.onload = initGame;
 </script>
 </body>
 </html>
